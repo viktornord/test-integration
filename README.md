@@ -3,4 +3,7 @@
 To have a docker-compose deployment that contains:
 
 * FTP fileserver
-* nodejs application that pull files (csv) from that server, store the information in such files, and exposes restfull service to display such information
+* Database server
+* A nodejs application that pull files (csv) from the FTP server, stores the information in the database server and exposes restfull service to display the stored information
+
+
