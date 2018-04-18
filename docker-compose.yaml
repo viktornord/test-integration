@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ftp_service:
+    build: ./ftp_service/
+  nodejs_service:
+    build: ./nodejs_service/
+  data_base_service:
+    build: ./database_service
