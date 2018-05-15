@@ -1,8 +1,16 @@
 version: "3"
 services:
+  data_base_service:
+    build: ./database_service
   ftp_service:
     build: ./ftp_service/
   nodejs_service:
     build: ./nodejs_service/
-  data_base_service:
-    build: ./database_service
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=postgresql://test:test@data_base_service:5432/test
+      - FTP_HOST=ftp_service
+    depends_on:
+      - "data_base_service"
+      - "ftp_service"

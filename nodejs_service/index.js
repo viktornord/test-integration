@@ -7,7 +7,7 @@ const { db } = require('./db');
 
 async function ftpConnect() {
   const client = new ftp.Client();
-  await client.connect('localhost', 7002);
+  await client.connect(process.env.FTP_HOST || 'localhost', 7002);
   console.log('connected to the ftp service');
   await client.login('foo', 'bar');
   console.log('authorized to the ftp service');
@@ -33,6 +33,7 @@ class ChunksToLines extends Writable {
   async write(chunk) {
     const lines = [];
     const [currentLine, ...restLines] = chunk.toString().split(os.EOL);
+    // consume lines except the very first one, which is a header
     if (this.consumedLines > 0) {
       lines.push(`${this.line}${currentLine}`);
     }
