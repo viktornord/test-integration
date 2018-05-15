@@ -17,12 +17,6 @@ async function ftpConnect() {
 
 db.connect()
   .then(() => console.log('connected to the db service'))
-  // .then(() => db.query('CREATE TABLE IF NOT EXISTS albums (\n' +
-  //   'id serial PRIMARY KEY NOT NULL,\n'+
-  //   '    album TEXT NOT NULL,\n' +
-  //   '    year INT,\n' +
-  //   '    US_peak_chart_post TEXT\n' +
-  //   ');'))
   .then(ftpConnect)
   .then(api)
   .catch(console.error);
