@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS albums (
-    album CHAR(36) NOT NULL,
+    id serial PRIMARY KEY NOT NULL,
+    album TEXT NOT NULL,
     year INT,
-    US_peak_chart_post CHAR(10)
+    US_peak_chart_post TEXT
 );

@@ -1,16 +1,9 @@
-const fs = require('fs');
 const os = require('os');
 const { Writable } = require('stream');
-
-const { Client } = require('pg');
 const ftp = require('basic-ftp');
 
-
-const db = new Client({
-  host: 'localhost',
-  database: 'postgres',
-  port: 5432,
-});
+const api = require('./api');
+const { db } = require('./db');
 
 async function ftpConnect() {
   const client = new ftp.Client();
@@ -24,7 +17,14 @@ async function ftpConnect() {
 
 db.connect()
   .then(() => console.log('connected to the db service'))
+  // .then(() => db.query('CREATE TABLE IF NOT EXISTS albums (\n' +
+  //   'id serial PRIMARY KEY NOT NULL,\n'+
+  //   '    album TEXT NOT NULL,\n' +
+  //   '    year INT,\n' +
+  //   '    US_peak_chart_post TEXT\n' +
+  //   ');'))
   .then(ftpConnect)
+  .then(api)
   .catch(console.error);
 
 
@@ -50,13 +50,20 @@ class ChunksToLines extends Writable {
       this.consumedLines += restLines.length;
     }
     for (const line of lines) {
-      const [name, year, US_peak_chart_post] = line.split(',').map(val => val.trim());
-      const query = `INSERT INTO albums VALUES ('${name}', ${year}, '${US_peak_chart_post}')`;
-      await db.query(query);
-      console.log('>>>> ', query);
+      const [album, year, US_peak_chart_post] = line.split(',').map(val => val.trim());
+      await createAlbum({ album, year, US_peak_chart_post });
     }
-    console.log('processed', lines);
   }
 }
 
+
+async function createAlbum({ album, year, US_peak_chart_post }) {
+  const { rows } = await db.query(`SELECT id FROM albums WHERE album = '${album}'`);
+  if (rows.length) {
+    return;
+  }
+  const query = `INSERT INTO albums (album, year, US_peak_chart_post) VALUES ('${album}', ${year}, '${US_peak_chart_post}')`;
+  await db.query(query);
+  console.log('>>>> ', query);
+}
 

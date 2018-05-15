@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "basic-ftp": "^2.12.0",
-    "pg": "^7.4.3"
+    "pg": "^7.4.3",
+    "restify": "^7.1.2"
   },
   "devDependencies": {},
   "scripts": {
