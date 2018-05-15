@@ -1,14 +1,43 @@
-const net = require('net');
-const fs = require('fs');
-const path = require('path');
-const server = net.createServer();
+const ftpd = require('ftpd');
 
-server.on('connection', client => {
-  console.log('somebody is connected');
-  // client.on('data', f => {
-  //   console.log(x.toString());
-  // });
-  fs.createReadStream(path.resolve('./files/albums.csv')).pipe(client);
+const server = new ftpd.FtpServer('localhost', {
+  getInitialCwd: function() {
+    return '/';
+  },
+  getRoot: function() {
+    return process.cwd();
+  },
+  pasvPortRangeStart: 1025,
+  pasvPortRangeEnd: 1050,
+  useWriteFile: false,
+  useReadFile: false,
+  uploadMaxSlurpSize: 7000, // N/A unless 'useWriteFile' is true.
 });
 
-server.listen(3000, 'localhost');
+server.on('error', function(error) {
+  console.log('FTP Server error:', error);
+});
+
+server.on('client:connected', function(connection) {
+  let username = null;
+  console.log('client connected: ' + connection.remoteAddress);
+  connection.on('command:user', function(user, success, failure) {
+    if (user) {
+      username = user;
+      success();
+    } else {
+      failure();
+    }
+  });
+
+  connection.on('command:pass', function(pass, success, failure) {
+    if (pass) {
+      success(username);
+    } else {
+      failure();
+    }
+  });
+});
+
+server.debugging = 4;
+server.listen(7002);

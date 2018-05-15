@@ -1,13 +1,28 @@
-const net = require('net');
+const fs = require('fs');
 const os = require('os');
 const { Writable } = require('stream');
-const fs = require('fs');
-const connection = net.createConnection({ port: 3000 });
-connection.on('connect', () => {
-  // connection.write('USER admin');
-  // connection.write('PASS admin');
-  // connection.write('RETR albums.csv');
-});
+
+
+const ftp = require('basic-ftp');
+
+async function connect() {
+  const client = new ftp.Client();
+  try {
+    await client.connect('localhost', 7002);
+    await client.login('foo', 'bar');
+    await client.download(new ChunksToLines(), '/files/albums.csv');
+  }
+  catch(err) {
+    console.log(err)
+  }
+  client.close()
+}
+
+connect();
+
+
+
+
 class ChunksToLines extends Writable {
   constructor(options) {
     super(options);
@@ -24,8 +39,8 @@ class ChunksToLines extends Writable {
       // grab all rest lines except the last one excluded above
       restLines.length > 0 && lines.push(...restLines);
     }
+    console.log('+ ', lines.length, 'lines');
   }
 }
 
-connection.pipe(new ChunksToLines());
 
